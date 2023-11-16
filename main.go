@@ -30,25 +30,22 @@ func FaqHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, responseStr)
 }
 
-type Router struct{}
-
-func (Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	fmt.Println(r)
-	switch r.URL.Path {
-	case "/":
-		MainHandler(w, r)
-	case "/contact":
-		ContactHandler(w, r)
-	case "/faq":
-		FaqHandler(w, r)
-	default:
-		NoFoundHandler(w, r)
-	}
+func UserHandler(w http.ResponseWriter, r *http.Request) {
+	user := chi.URLParam(r, "userID")
+	userID := user[len("userID")+1:]
+	//// fetch `"key"` from the request context
+	//ctx := r.Context()
+	//key := ctx.Value("key").(string)
+	//fmt.Println(user, key)
+	//// respond to the client
+	w.Write([]byte(fmt.Sprintf("Hi %v", userID)))
 }
+
 func main() {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Get("/", MainHandler)
+	r.Get("/users/{userID}", UserHandler)
 	r.Get("/contact", ContactHandler)
 	r.Get("/faq", FaqHandler)
 	r.NotFound(NoFoundHandler)
